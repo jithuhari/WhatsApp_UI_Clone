@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:whatsapp_ui/features/home_screen/home_screen.dart';
+import 'package:camera/camera.dart';
+Future<void> main() async{
+    WidgetsFlutterBinding.ensureInitialized();
 
-void main() {
-  runApp(const MyApp());
+  // Initialize cameras
+  List<CameraDescription> cameras = await availableCameras();
+  runApp(MyApp(cameras: cameras));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final List<CameraDescription> cameras;
+  const MyApp({Key? key, required this.cameras}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +19,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
       ),
-      home: const HomePageScreen(),
+      home:HomePageScreen(cameras: cameras),
     );
   }
 }

@@ -3,9 +3,50 @@ import 'package:whatsapp_ui/const/colors.dart';
 import 'package:whatsapp_ui/features/calls_screen/calls_screen.dart';
 import 'package:whatsapp_ui/features/home_screen/widgets/chatList.dart';
 import 'package:whatsapp_ui/features/status_screen/status_screen.dart';
+import 'package:camera/camera.dart';
 
-class HomePageScreen extends StatelessWidget {
-  const HomePageScreen({Key? key}) : super(key: key);
+import 'widgets/camera_screen.dart';
+
+class HomePageScreen extends StatefulWidget {
+  final List<CameraDescription> cameras;
+  const HomePageScreen({Key? key, required this.cameras}) : super(key: key);
+
+  @override
+  State<HomePageScreen> createState() => _HomePageScreenState();
+}
+
+class _HomePageScreenState extends State<HomePageScreen> {
+  late CameraController _controller;
+  late Future<void> _initializeControllerFuture;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize camera controller
+    _controller = CameraController(
+      widget.cameras[0],
+      ResolutionPreset.medium,
+    );
+
+    _initializeControllerFuture = _controller.initialize();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _openCamera() async {
+    await _initializeControllerFuture;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TakePictureScreen(controller: _controller),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,16 +57,18 @@ class HomePageScreen extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: mainColor,
           title: const Text('WhatsApp'),
-          actions: const [
-            Icon(Icons.camera_alt_outlined),
-            SizedBox(
+          actions: [
+            GestureDetector(
+                onTap: (() => _openCamera()),
+                child: const Icon(Icons.camera_alt_outlined)),
+            const SizedBox(
               width: 10,
             ),
-            Icon(Icons.search),
-            SizedBox(
+            const Icon(Icons.search),
+            const SizedBox(
               width: 10,
             ),
-            Icon(Icons.more_vert)
+            const Icon(Icons.more_vert)
           ],
           bottom: const TabBar(
               indicatorSize: TabBarIndicatorSize.tab,
